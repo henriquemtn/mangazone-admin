@@ -10,7 +10,7 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const adminData = sessionStorage.getItem("admin");
+    const adminData = sessionStorage.getItem("user");
     if (adminData) {
       router.push("/dashboard");
     }
