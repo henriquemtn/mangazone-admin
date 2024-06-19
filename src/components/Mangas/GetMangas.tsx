@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button"; // Componente de botão, ajuste conforme seus componentes UI
-import { useRouter } from "next/navigation"; // Hook para navegação no Next.js
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation"; 
 
 interface Manga {
   _id: string;
   title: string;
   author: string;
   genre: string;
-  publishedYear: number;
+  releaseDate: string;
   imageUrl: string;
 }
 
@@ -86,7 +86,7 @@ const GetMangas: React.FC = () => {
               <p className="text-gray-500 mb-2">{manga.author}</p>
               <p className="text-gray-500 mb-2">{manga.genre}</p>
               <p className="text-gray-500 mb-2">
-                Ano de publicação: {manga.publishedYear}
+                Ano de publicação: {manga.releaseDate}
               </p>
               <Button
                 onClick={() => router.push(`/mangas/${manga._id}`)}

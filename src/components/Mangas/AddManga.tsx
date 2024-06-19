@@ -1,7 +1,6 @@
-"use client";
+'use client';
 
 import React, { useState } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -25,37 +24,40 @@ import {
 } from "../ui/card";
 
 interface Manga {
-  title: string;
-  author: string;
-  genre: string;
-  publishedYear: number;
+  _id: string;
   imageUrl: string;
+  title: string;
+  alternativeTitles: string;
+  author: string;
+  synopsis: string;
+  genres: string;
+  publisherBy: string;
+  score: number;
+  releaseDate: string;
 }
 
 export default function AddManga() {
   const router = useRouter();
 
-  const [titulo, setTitulo] = useState<string>("");
-  const [autor, setAutor] = useState<string>("");
-  const [genero, setGenero] = useState<string>("");
-  const [publishedYear, setPublishedYear] = useState<number>(2000);
-  const [imageURL, setImageURL] = useState<string>("");
+  const [newManga, setNewManga] = useState<Manga>({
+    _id: "", // Seu backend geralmente gera o _id
+    imageUrl: "",
+    title: "",
+    alternativeTitles: "",
+    author: "",
+    synopsis: "",
+    genres: "",
+    publisherBy: "",
+    score: 0,
+    releaseDate: "",
+  });
 
   const handleAddManga = async () => {
     try {
       // Verifica se os campos obrigatórios estão preenchidos
-      if (!titulo || !genero) {
+      if (!newManga.title || !newManga.genres) {
         throw new Error("Título e Gênero são campos obrigatórios");
       }
-
-      // Monta o objeto manga com os dados inseridos
-      const newManga: Manga = {
-        title: titulo,
-        author: autor,
-        genre: genero,
-        publishedYear: publishedYear,
-        imageUrl: imageURL,
-      };
 
       // Faz a requisição POST para adicionar o mangá
       const response = await fetch("https://api-mangazone.onrender.com/api/mangas", {
@@ -84,10 +86,6 @@ export default function AddManga() {
     }
   };
 
-  const handleRemoveManga = async() => {
-
-  }
-
   return (
     <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
       <CardHeader className="pb-3">
@@ -111,57 +109,102 @@ export default function AddManga() {
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="titulo" className="text-right">
+                <Label htmlFor="title" className="text-right">
                   Título
                 </Label>
                 <Input
-                  id="titulo"
-                  defaultValue={titulo}
-                  onChange={(e) => setTitulo(e.target.value)}
+                  id="title"
+                  value={newManga.title}
+                  onChange={(e) => setNewManga({ ...newManga, title: e.target.value })}
                   className="col-span-3"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="autor" className="text-right">
+                <Label htmlFor="alternativeTitles" className="text-right">
+                  Títulos Alternativos
+                </Label>
+                <Input
+                  id="alternativeTitles"
+                  value={newManga.alternativeTitles}
+                  onChange={(e) => setNewManga({ ...newManga, alternativeTitles: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="author" className="text-right">
                   Autor
                 </Label>
                 <Input
-                  id="autor"
-                  defaultValue={autor}
-                  onChange={(e) => setAutor(e.target.value)}
+                  id="author"
+                  value={newManga.author}
+                  onChange={(e) => setNewManga({ ...newManga, author: e.target.value })}
                   className="col-span-3"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="genero" className="text-right">
-                  Gênero
+                <Label htmlFor="synopsis" className="text-right">
+                  Sinopse
                 </Label>
                 <Input
-                  id="genero"
-                  defaultValue={genero}
-                  onChange={(e) => setGenero(e.target.value)}
+                  id="synopsis"
+                  value={newManga.synopsis}
+                  onChange={(e) => setNewManga({ ...newManga, synopsis: e.target.value })}
                   className="col-span-3"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="publishedYear" className="text-right">
-                  Ano de Publicação
+                <Label htmlFor="genres" className="text-right">
+                  Gêneros
                 </Label>
                 <Input
-                  id="publishedYear"
-                  defaultValue={publishedYear.toString()}
-                  onChange={(e) => setPublishedYear(Number(e.target.value))}
+                  id="genres"
+                  value={newManga.genres}
+                  onChange={(e) => setNewManga({ ...newManga, genres: e.target.value })}
                   className="col-span-3"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="imageURL" className="text-right">
+                <Label htmlFor="publisherBy" className="text-right">
+                  Publicado Por
+                </Label>
+                <Input
+                  id="publisherBy"
+                  value={newManga.publisherBy}
+                  onChange={(e) => setNewManga({ ...newManga, publisherBy: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="score" className="text-right">
+                  Pontuação
+                </Label>
+                <Input
+                  id="score"
+                  type="number"
+                  value={newManga.score}
+                  onChange={(e) => setNewManga({ ...newManga, score: parseInt(e.target.value) })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="releaseDate" className="text-right">
+                  Data de Lançamento
+                </Label>
+                <Input
+                  id="releaseDate"
+                  value={newManga.releaseDate}
+                  onChange={(e) => setNewManga({ ...newManga, releaseDate: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="imageUrl" className="text-right">
                   URL da Imagem
                 </Label>
                 <Input
-                  id="imageURL"
-                  defaultValue={imageURL}
-                  onChange={(e) => setImageURL(e.target.value)}
+                  id="imageUrl"
+                  value={newManga.imageUrl}
+                  onChange={(e) => setNewManga({ ...newManga, imageUrl: e.target.value })}
                   className="col-span-3"
                 />
               </div>

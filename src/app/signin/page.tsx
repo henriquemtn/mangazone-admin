@@ -1,150 +1,44 @@
-'use client';
+"use client";
 
 import Image from "next/image";
 import BGLogin from "@/assets/loginbg.jpg";
-import { auth } from "@/firebase/firebaseConfig";
-import {
-  GithubAuthProvider,
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth";
-import {
-  doc,
-  getDoc,
-  getFirestore,
-  setDoc,
-} from "firebase/firestore";
 import Link from "next/link";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-
-const allowedEmails = ["henriquemartinsilveira2@gmail.com", "henriquemartinsilveira3@gmail.com",];
+import toast from "react-hot-toast";
 
 export default function SignIn() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const getUsernameFromEmail = (email: string | null): string | null => {
-    if (!email) return null;
-    const username = email.split("@")[0];
-    return username;
-  };
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [user, setUser] = useState(localStorage.getItem('user') || '');
 
   const handleLogin = async () => {
-    if (!allowedEmails.includes(email)) {
-      console.error("Unauthorized email address");
-      alert("Unauthorized email address");
-      return;
-    }
-
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
-      const username = getUsernameFromEmail(email);
-      if (username) {
-        const db = getFirestore();
-        const userRef = doc(db, "users", userCredential.user.uid);
-        const docSnap = await getDoc(userRef);
-
-        if (!docSnap.exists()) {
-          await setDoc(userRef, {
-            uid: userCredential.user.uid,
-            username,
-            email: userCredential.user.email ?? '', // Ensure email is not null
-          });
-        }
-      }
-
-      sessionStorage.setItem("admin", JSON.stringify(userCredential.user));
-      console.log("Admin data:", userCredential.user);
-      window.location.reload();
-    } catch (error) {
-      console.error("Error logging in:", error);
+      const response = await axios.post("https://api-mangazone.onrender.com/api/user/login", { email, password });
+      const { token, user } = response.data;
+  
+      // Armazenar token e usuário como strings JSON no localStorage
+      localStorage.setItem('token', JSON.stringify(token));
+      localStorage.setItem('user', JSON.stringify(user));
+  
+      // Atualizar estados locais
+      setToken(token);
+      setUser(user);
+  
+      toast.success("Bem vindo(a) ao painel de administração MangaZone!")
+      router.push("/dashboard"); 
+    } catch (error: any) {
+      console.error("Erro ao realizar login:", error);
+      console.error(error.response.data.message); 
     }
   };
-
-  const handleGoogleLogin = async () => {
-    const googleProvider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-
-      const userEmail = result.user.email ?? '';
-      if (!allowedEmails.includes(userEmail)) {
-        console.error("Unauthorized email address");
-        alert("Unauthorized email address");
-        return;
-      }
-
-      const db = getFirestore();
-      const username = getUsernameFromEmail(userEmail);
-      if (!username) throw new Error("Could not extract username from email.");
-
-      const userRef = doc(db, "users", result.user.uid);
-      const docSnap = await getDoc(userRef);
-
-      if (!docSnap.exists()) {
-        await setDoc(userRef, {
-          uid: result.user.uid,
-          displayName: result.user.displayName || "User",
-          username,
-          email: userEmail,
-          photoURL: result.user.photoURL || "default", // Incluir photoURL ou valor padrão
-        });
-      }
-
-      sessionStorage.setItem("admin", JSON.stringify(result.user));
-      console.log("User data:", result.user);
-      router.push("/dashboard");
-    } catch (error) {
-      console.error("Error logging in with Google:", error);
-    }
-  };
-
-  const handleGithubLogin = async () => {
-    const githubProvider = new GithubAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, githubProvider);
-
-      const userEmail = result.user.email ?? '';
-      if (!allowedEmails.includes(userEmail)) {
-        console.error("Unauthorized email address");
-        alert("Unauthorized email address");
-        return;
-      }
-
-      const db = getFirestore();
-      const username = getUsernameFromEmail(userEmail);
-      if (!username) throw new Error("Could not extract username from email.");
-
-      const userRef = doc(db, "users", result.user.uid);
-      const docSnap = await getDoc(userRef);
-
-      if (!docSnap.exists()) {
-        await setDoc(userRef, {
-          uid: result.user.uid,
-          displayName: result.user.displayName || "User",
-          username,
-          email: userEmail,
-          photoURL: result.user.photoURL || "default",
-        });
-      }
-
-      sessionStorage.setItem("admin", JSON.stringify(result.user));
-      console.log("User data:", result.user);
-      router.push("/dashboard");
-    } catch (error) {
-      console.error("Error logging in with Github:", error);
-    }
-  };
+  
 
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
@@ -163,6 +57,7 @@ export default function SignIn() {
                 id="email"
                 type="email"
                 placeholder="admin@example.com"
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -176,12 +71,18 @@ export default function SignIn() {
                   Forgot your password?
                 </Link>
               </div>
-              <Input id="password" placeholder="*********" type="password" required />
+              <Input
+                id="password"
+                placeholder="*********"
+                type="password"
+                required
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
-            <Button onSubmit={handleLogin} type="submit" className="w-full">
+            <Button onClick={handleLogin} type="submit" className="w-full">
               Login
             </Button>
-            <Button onClick={handleGoogleLogin} variant="outline" className="w-full gap-1">
+            <Button variant="outline" className="w-full gap-1">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 x="0px"
@@ -209,7 +110,7 @@ export default function SignIn() {
               </svg>
               Login with Google
             </Button>
-            <Button onClick={handleGithubLogin}  variant="outline" className="w-full  gap-1">
+            <Button variant="outline" className="w-full  gap-1">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 x="0px"

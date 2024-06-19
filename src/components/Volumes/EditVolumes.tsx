@@ -26,7 +26,7 @@ const EditVolumes = ({
   linkExisting,
   handleRemoveVolume,
 }: any) => {
-    const [volumeNumber, setVolumeNumber] = useState(volumeNumberExisting || "");
+    const [number, setNumber] = useState(volumeNumberExisting || "");
     const [releaseDate, setReleaseDate] = useState(releaseDateExisting || "");
     const [chapters, setChapters] = useState(chaptersExisting || "");
     const [imageUrl, setImageUrl] = useState(imageUrlExisting || "");
@@ -36,12 +36,12 @@ const EditVolumes = ({
     const handleChangeVolume = async (volumeId: string) => {
         // Dados do volume a ser modificado
         const volumeData = {
-          volumeNumber: volumeNumber,
-          releaseDate: releaseDate,
+          number: number,
+          date: releaseDate,
           chapters: chapters,
-          imageUrl: imageUrl,
+          image: imageUrl,
           price: price,
-          link: link,
+          linkAmazon: link,
         };
       
         try {
@@ -75,7 +75,7 @@ const EditVolumes = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            Alterar informações do Volume {volumeNumber}
+            Alterar informações do Volume {number}
           </DialogTitle>
           <DialogDescription>
             Faça alterações nas informações do manga aqui. Clique em salvar
@@ -90,8 +90,8 @@ const EditVolumes = ({
             <Input
               id="volumeNumber"
               type="number"
-              value={volumeNumber}
-              onChange={(e) => setVolumeNumber(e.target.value)}
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
               className="col-span-3"
             />
           </div>

@@ -17,55 +17,34 @@ import {
 import { Button } from "../ui/button";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { auth } from "@/firebase/firebaseConfig";
-import { User, signOut } from "firebase/auth";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { CircleUserRound } from "lucide-react";
 import Search from "./Search";
 
+interface User {
+  displayName: string;
+  photoURL: string;
+}
+
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const userData = sessionStorage.getItem("admin");
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
+    // Verificar se há usuário no localStorage ao carregar a página
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser: User = JSON.parse(storedUser);
       setUser(parsedUser);
-
-      // Fetch user data from Firestore using uid
-      const fetchUserData = async () => {
-        const db = getFirestore();
-        const userRef = doc(db, "users", parsedUser.uid);
-        try {
-          const docSnap = await getDoc(userRef);
-          if (docSnap.exists()) {
-            const firestoreUserData = docSnap.data() as User;
-            setUser(firestoreUserData);
-          } else {
-            console.error("User document not found");
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchUserData();
-    } else {
-      setIsLoading(false);
-      router.push("/"); // Redirect to home if no user is found
     }
-  }, [router]);
+  }, []);
 
   const handleLogout = () => {
-    signOut(auth);
-    sessionStorage.removeItem("admin");
-    router.push("/"); // Redirect to home after logout
+    // Limpar o localStorage e redirecionar para a página de login
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null); // Limpar o estado do usuário
+    router.push("/");
   };
-
   return (
     <div className="border-b">
       <header className="container sticky top-0 flex h-16 items-center gap-4 bg-background px-4 md:px-6">
@@ -167,7 +146,7 @@ export default function Navbar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
-                {user ? (
+              {user ? (
                   <>
                     <Avatar>
                       <AvatarFallback>

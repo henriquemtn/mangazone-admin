@@ -3,12 +3,9 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { PlusCircleIcon } from "lucide-react";
+import { Bold, PlusCircleIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { auth } from "@/firebase/firebaseConfig";
-import { User } from "firebase/auth";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
 
 import {
   Dialog,
@@ -31,25 +28,42 @@ import {
   TableRow,
 } from "./ui/table";
 import EditVolumes from "./Volumes/EditVolumes";
+import Image from "next/image";
+import axios from "axios";
+
+interface Characters {
+  _id: string;
+  name: string;
+  photoUrl: string;
+  spoiler: string;
+  age: number;
+  biography: string;
+  voiceActors: string[];
+}
 
 interface Volume {
   _id: string;
-  volumeNumber: number;
-  releaseDate: string;
-  chapters: string[];
-  imageUrl: string;
+  number: number;
+  date: string;
+  chapters: string;
+  image: string;
   volumeName: string;
   price?: number;
-  link?: string;
+  linkAmazon?: string;
 }
 
 interface Manga {
   _id: string;
   imageUrl: string;
   title: string;
+  alternativeTitles: string;
   author: string;
-  genre: string;
-  publishedYear: number;
+  synopsis: string;
+  genres: string;
+  publisherBy: string;
+  score: number;
+  releaseDate: string;
+  characters: Characters[];
   volumes: Volume[];
 }
 
@@ -60,52 +74,25 @@ interface CP {
 export default function MangaSearchById({ mangaUrl }: CP) {
   const [manga, setManga] = useState<Manga | null>(null);
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [titulo, setTitulo] = useState<string>("");
-  const [autor, setAutor] = useState<string>("");
-  const [genero, setGenero] = useState<string>("");
-  const [publishedYear, setPublishedYear] = useState<number>(0);
-  const [imageURL, setImageURL] = useState<string>("");
+  const [title, setTitle] = useState("");
+  const [alternativeTitles, setAlternativeTitles] = useState("");
+  const [author, setAuthor] = useState("");
+  const [synopsis, setSynopsis] = useState("");
+  const [genres, setGenres] = useState("");
+  const [publisherBy, setPublisherBy] = useState("");
+  const [score, setScore] = useState("");
+  const [releaseDate, setReleaseDate] = useState("");
+  const [imageUrlManga, setImageUrlManga] = useState("");
 
   const [volumeNumber, setVolumeNumber] = useState("");
-  const [releaseDate, setReleaseDate] = useState("");
+  const [Date, setDate] = useState("");
+  const [isAlternativeCover, setIsAlternativeCover] = useState(false);
   const [chapters, setChapters] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [price, setPrice] = useState("");
   const [link, setLink] = useState("");
-
-  useEffect(() => {
-    const userData = sessionStorage.getItem("user");
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
-
-      // Buscar dados do Firestore usando o uid
-      const fetchUserData = async () => {
-        const db = getFirestore();
-        const userRef = doc(db, "users", parsedUser.uid);
-        try {
-          const docSnap = await getDoc(userRef);
-          if (docSnap.exists()) {
-            const firestoreUserData = docSnap.data() as User;
-            setUser(firestoreUserData);
-          } else {
-            console.error("Documento do usuário não encontrado");
-          }
-        } catch (error) {
-          console.error("Erro ao buscar dados do usuário:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchUserData();
-    } else {
-      setIsLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
     const fetchManga = async () => {
@@ -116,11 +103,22 @@ export default function MangaSearchById({ mangaUrl }: CP) {
         }
         const data = await response.json();
         setManga(data);
-        setTitulo(data.title);
-        setAutor(data.author);
-        setGenero(data.genre);
-        setPublishedYear(data.publishedYear);
-        setImageURL(data.imageUrl);
+        setTitle(data.title);
+        setAlternativeTitles(data.alternativeTitles);
+        setSynopsis(data.synopsis);
+        setScore(data.score);
+        setPublisherBy(data.publisherBy);
+        setAuthor(data.author);
+        setGenres(data.genres);
+        setReleaseDate(data.releaseDate);
+        setImageUrlManga(data.imageUrl);
+        setVolumeNumber(data.volumeNumber);
+        setDate(data.Date);
+        setIsAlternativeCover(data.isAlternativeCover);
+        setChapters(data.chapters);
+        setImageUrl(data.imageUrl);
+        setPrice(data.price);
+        setLink(data.link);
       } catch (error) {
         if (error instanceof Error) {
           console.error(error.message);
@@ -159,24 +157,27 @@ export default function MangaSearchById({ mangaUrl }: CP) {
 
   const handleSaveChanges = async () => {
     try {
-      const response = await fetch(
+      const response = await axios.put(
         `https://api-mangazone.onrender.com/api/mangas/${manga?._id}`,
         {
-          method: "PATCH",
+          title: title,
+          alternativeTitles: alternativeTitles,
+          author: author,
+          synopsis: synopsis,
+          genres: genres,
+          publisherBy: publisherBy,
+          score: parseFloat(score),
+          releaseDate: releaseDate,
+          imageUrl: imageUrlManga,
+        },
+        {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            title: titulo,
-            author: autor,
-            genre: genero,
-            publishedYear: publishedYear,
-            imageUrl: imageURL,
-          }),
         }
       );
 
-      if (!response.ok) {
+      if (!response.data) {
         throw new Error("Falha ao atualizar o manga");
       }
 
@@ -225,38 +226,33 @@ export default function MangaSearchById({ mangaUrl }: CP) {
 
   const handleAddVolume = async () => {
     const volumeData = {
-      volumeNumber: volumeNumber,
-      releaseDate: releaseDate,
+      number: parseInt(volumeNumber), // Converte para número, se necessário
+      date: releaseDate,
+      alternativeCover: isAlternativeCover, // Não tenho certeza do que é chapters, verificar se é isso mesmo
       chapters: chapters,
-      imageUrl: imageUrl,
-      price: price,
-      link: link,
+      image: imageUrl,
+      linkAmazon: link,
+      price: parseFloat(price), // Converte para número de ponto flutuante, se necessário
     };
 
     try {
-      const response = await fetch(
+      const response = await axios.post(
         `https://api-mangazone.onrender.com/api/mangas/${manga?._id}/volumes`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(volumeData),
-        }
+        volumeData
       );
 
-      if (!response.ok) {
+      if (response.status === 201) {
+        console.log("Volume adicionado com sucesso:", response.data);
+
+        toast.success("Volume adicionado com sucesso!");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
         throw new Error("Falha ao adicionar o volume ao manga");
       }
-
-      toast.success("Volume adicionado com sucesso!");
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
     } catch (error) {
       console.error("Erro ao adicionar volume:", error);
-      toast.error("Erro ao adicionar volume. Tente novamente mais tarde.");
     }
   };
 
@@ -277,8 +273,7 @@ export default function MangaSearchById({ mangaUrl }: CP) {
                 By {manga.author}
               </p>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
-                Explore the captivating world of {manga.title}. Dive into the
-                adventures crafted by {manga.author}.
+                {manga.synopsis}
               </p>
               <div className="flex gap-2">
                 <Dialog>
@@ -396,8 +391,22 @@ export default function MangaSearchById({ mangaUrl }: CP) {
                         </Label>
                         <Input
                           id="titulo"
-                          defaultValue={titulo}
-                          onChange={(e) => setTitulo(e.target.value)}
+                          defaultValue={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label
+                          htmlFor="alternativeTitles"
+                          className="text-right"
+                        >
+                          Títulos Alternativos
+                        </Label>
+                        <Input
+                          id="alternativeTitles"
+                          defaultValue={alternativeTitles}
+                          onChange={(e) => setAlternativeTitles(e.target.value)}
                           className="col-span-3"
                         />
                       </div>
@@ -407,8 +416,19 @@ export default function MangaSearchById({ mangaUrl }: CP) {
                         </Label>
                         <Input
                           id="autor"
-                          defaultValue={autor}
-                          onChange={(e) => setAutor(e.target.value)}
+                          defaultValue={author}
+                          onChange={(e) => setAuthor(e.target.value)}
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="synopsis" className="text-right">
+                          Sinopse
+                        </Label>
+                        <textarea
+                          id="synopsis"
+                          defaultValue={synopsis}
+                          onChange={(e) => setSynopsis(e.target.value)}
                           className="col-span-3"
                         />
                       </div>
@@ -418,21 +438,41 @@ export default function MangaSearchById({ mangaUrl }: CP) {
                         </Label>
                         <Input
                           id="genero"
-                          defaultValue={genero}
-                          onChange={(e) => setGenero(e.target.value)}
+                          defaultValue={genres}
+                          onChange={(e) => setGenres(e.target.value)}
                           className="col-span-3"
                         />
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="publishedYear" className="text-right">
+                        <Label htmlFor="publisherBy" className="text-right">
+                          Publicado por
+                        </Label>
+                        <Input
+                          id="publisherBy"
+                          defaultValue={publisherBy}
+                          onChange={(e) => setPublisherBy(e.target.value)}
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="score" className="text-right">
+                          Pontuação
+                        </Label>
+                        <Input
+                          id="score"
+                          defaultValue={score}
+                          onChange={(e) => setScore(e.target.value)}
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="releaseDate" className="text-right">
                           Ano de Publicação
                         </Label>
                         <Input
-                          id="publishedYear"
-                          defaultValue={publishedYear.toString()}
-                          onChange={(e) =>
-                            setPublishedYear(Number(e.target.value))
-                          }
+                          id="releaseDate"
+                          defaultValue={releaseDate}
+                          onChange={(e) => setReleaseDate(e.target.value)}
                           className="col-span-3"
                         />
                       </div>
@@ -442,8 +482,8 @@ export default function MangaSearchById({ mangaUrl }: CP) {
                         </Label>
                         <Input
                           id="imageURL"
-                          defaultValue={imageURL}
-                          onChange={(e) => setImageURL(e.target.value)}
+                          defaultValue={imageUrlManga}
+                          onChange={(e) => setImageUrlManga(e.target.value)}
                           className="col-span-3"
                         />
                       </div>
@@ -461,6 +501,7 @@ export default function MangaSearchById({ mangaUrl }: CP) {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
+
               </div>
             </div>
             <div className="hidden md:block">
@@ -476,6 +517,25 @@ export default function MangaSearchById({ mangaUrl }: CP) {
         </div>
       </section>
       <section className="py-12 md:py-16 lg:py-20">
+        <div className="container max-w-6xl px-4 mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {manga.characters.map((character) => (
+              <div
+                key={character._id}
+                className="items-center flex  flex-col border rounded-lg my-4"
+              >
+                <Image
+                  src={character.photoUrl || "/placeholder.svg"}
+                  alt={character.name}
+                  className="w-[150px] h-[150px] rounded-lg mb-4 object-cover"
+                  width={150}
+                  height={150}
+                />
+                <h3 className="text-lg font-medium mb-2">{character.name}</h3>
+              </div>
+            ))}
+          </div>
+        </div>
         <div className="container max-w-6xl px-4 mx-auto">
           <h2 className="text-2xl md:text-3xl lg:text-3xl font-medium mb-8">
             Volumes adicionados: {manga.volumes.length}
@@ -494,32 +554,34 @@ export default function MangaSearchById({ mangaUrl }: CP) {
               </TableHeader>
               <TableBody>
                 {manga.volumes
-                  .sort((a, b) => a.volumeNumber - b.volumeNumber)
+                  .sort((a, b) => a.number - b.number)
                   .map((volume) => (
                     <TableRow key={volume._id}>
                       <TableCell className="font-medium">
-                        {volume.volumeNumber}
+                        {volume.number}
                       </TableCell>
                       <TableCell>
                         <img
-                          src={volume.imageUrl || "/placeholder.svg"}
-                          alt={`Volume ${volume.volumeNumber} Cover`}
+                          src={volume.image || "/placeholder.svg"}
+                          alt={`Volume ${volume.number} Cover`}
                           width={100}
                           height={150}
                         />
                       </TableCell>
-                      <TableCell>{volume.volumeName}</TableCell>
+                      <TableCell>
+                        {manga.title} Vol. {volume.number}
+                      </TableCell>
                       <TableCell>R$ {volume.price}</TableCell>
                       <TableCell>
                         <EditVolumes
                           mangaId={manga._id}
                           volumeId={volume._id}
-                          volumeNumberExisting={volume.volumeNumber}
-                          releaseDateExisting={volume.releaseDate}
+                          volumeNumberExisting={volume.number}
+                          releaseDateExisting={volume.date}
                           chaptersExisting={volume.chapters}
-                          imageUrlExisting={volume.imageUrl}
+                          imageUrlExisting={volume.image}
                           priceExisting={volume.price}
-                          linkExisting={volume.link}
+                          linkExisting={volume.linkAmazon}
                           handleRemoveVolume={() =>
                             handleRemoveVolume(volume._id)
                           }
