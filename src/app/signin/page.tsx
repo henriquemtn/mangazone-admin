@@ -5,7 +5,7 @@ import BGLogin from "@/assets/loginbg.jpg";
 import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,14 +18,28 @@ export default function SignIn() {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [user, setUser] = useState(localStorage.getItem('user') || '');
 
+  useEffect(() => {
+    // Verificar se estamos no lado do cliente antes de acessar localStorage
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      if (storedToken && storedUser) {
+        setToken(JSON.parse(storedToken));
+        setUser(JSON.parse(storedUser));
+      }
+    }
+  }, []);
+
   const handleLogin = async () => {
     try {
       const response = await axios.post("https://api-mangazone.onrender.com/api/user/login", { email, password });
       const { token, user } = response.data;
   
       // Armazenar token e usuário como strings JSON no localStorage
-      localStorage.setItem('token', JSON.stringify(token));
-      localStorage.setItem('user', JSON.stringify(user));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', JSON.stringify(token));
+        localStorage.setItem('user', JSON.stringify(user));
+      }
   
       // Atualizar estados locais
       setToken(token);
