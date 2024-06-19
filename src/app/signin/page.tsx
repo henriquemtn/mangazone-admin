@@ -15,44 +15,46 @@ export default function SignIn() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
-  const [user, setUser] = useState(localStorage.getItem('user') || '');
+  const [token, setToken] = useState(
+    typeof window !== "undefined" ? localStorage.getItem("token") || "" : ""
+  );
+  const [user, setUser] = useState(
+    typeof window !== "undefined" ? localStorage.getItem("user") || "" : ""
+  );
 
   useEffect(() => {
     // Verificar se estamos no lado do cliente antes de acessar localStorage
-    if (typeof window !== 'undefined') {
-      const storedToken = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
-      if (storedToken && storedUser) {
-        setToken(JSON.parse(storedToken));
-        setUser(JSON.parse(storedUser));
-      }
+    if (typeof window !== "undefined") {
+      localStorage.setItem("token", JSON.stringify(token));
+      localStorage.setItem("user", JSON.stringify(user));
     }
   }, []);
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post("https://api-mangazone.onrender.com/api/user/login", { email, password });
+      const response = await axios.post(
+        "https://api-mangazone.onrender.com/api/user/login",
+        { email, password }
+      );
       const { token, user } = response.data;
-  
+
       // Armazenar token e usuário como strings JSON no localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('token', JSON.stringify(token));
-        localStorage.setItem('user', JSON.stringify(user));
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", JSON.stringify(token));
+        localStorage.setItem("user", JSON.stringify(user));
       }
-  
+
       // Atualizar estados locais
       setToken(token);
       setUser(user);
-  
-      toast.success("Bem vindo(a) ao painel de administração MangaZone!")
-      router.push("/dashboard"); 
+
+      toast.success("Bem vindo(a) ao painel de administração MangaZone!");
+      router.push("/dashboard");
     } catch (error: any) {
       console.error("Erro ao realizar login:", error);
-      console.error(error.response.data.message); 
+      console.error(error.response.data.message);
     }
   };
-  
 
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
