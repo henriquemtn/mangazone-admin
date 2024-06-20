@@ -69,7 +69,7 @@ export default function Navbar() {
             Mangás
           </Link>
           <Link
-            href="#"
+            href="/artistas"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
             Artistas
@@ -117,7 +117,7 @@ export default function Navbar() {
                 Mangás
               </Link>
               <Link
-                href="#"
+                href="/artistas"
                 className="text-muted-foreground hover:text-foreground"
               >
                 Artistas

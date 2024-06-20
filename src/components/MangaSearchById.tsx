@@ -30,6 +30,8 @@ import {
 import EditVolumes from "./Volumes/EditVolumes";
 import Image from "next/image";
 import axios from "axios";
+import AddVolume from "./Volumes/AddVolume";
+import EditManga from "./Mangas/EditManga";
 
 interface Characters {
   _id: string;
@@ -87,12 +89,14 @@ export default function MangaSearchById({ mangaUrl }: CP) {
   const [imageUrlManga, setImageUrlManga] = useState("");
 
   const [volumeNumber, setVolumeNumber] = useState("");
-  const [Date, setDate] = useState("");
+  const [date, setDate] = useState("");
   const [isAlternativeCover, setIsAlternativeCover] = useState(false);
   const [chapters, setChapters] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [price, setPrice] = useState("");
   const [link, setLink] = useState("");
+
+
 
   useEffect(() => {
     const fetchManga = async () => {
@@ -131,69 +135,6 @@ export default function MangaSearchById({ mangaUrl }: CP) {
     fetchManga();
   }, [mangaUrl]);
 
-  const handleDeleteManga = async (mangaId: string) => {
-    try {
-      const response = await fetch(
-        `https://api-mangazone.onrender.com/api/mangas/${mangaId}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Falha ao remover o mangá");
-      }
-
-      toast.success("Mangá removido com sucesso!");
-
-      setTimeout(() => {
-        router.push("/mangas");
-      }, 1500);
-    } catch (error) {
-      console.error("Erro ao remover o mangá:", error);
-      toast.error("Erro ao remover o mangá. Tente novamente mais tarde.");
-    }
-  };
-
-  const handleSaveChanges = async () => {
-    try {
-      const response = await axios.put(
-        `https://api-mangazone.onrender.com/api/mangas/${manga?._id}`,
-        {
-          title: title,
-          alternativeTitles: alternativeTitles,
-          author: author,
-          synopsis: synopsis,
-          genres: genres,
-          publisherBy: publisherBy,
-          score: parseFloat(score),
-          releaseDate: releaseDate,
-          imageUrl: imageUrlManga,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.data) {
-        throw new Error("Falha ao atualizar o manga");
-      }
-
-      toast.success("Informações do manga atualizadas com sucesso!");
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
-    } catch (error) {
-      console.error("Erro ao atualizar o manga:", error);
-      toast.error(
-        "Erro ao atualizar informações do manga. Tente novamente mais tarde."
-      );
-    }
-  };
-
   const handleRemoveVolume = async (volumeId: string) => {
     try {
       const response = await fetch(
@@ -224,38 +165,6 @@ export default function MangaSearchById({ mangaUrl }: CP) {
     }
   };
 
-  const handleAddVolume = async () => {
-    const volumeData = {
-      number: parseInt(volumeNumber), // Converte para número, se necessário
-      date: releaseDate,
-      alternativeCover: isAlternativeCover, // Não tenho certeza do que é chapters, verificar se é isso mesmo
-      chapters: chapters,
-      image: imageUrl,
-      linkAmazon: link,
-      price: parseFloat(price), // Converte para número de ponto flutuante, se necessário
-    };
-
-    try {
-      const response = await axios.post(
-        `https://api-mangazone.onrender.com/api/mangas/${manga?._id}/volumes`,
-        volumeData
-      );
-
-      if (response.status === 201) {
-        console.log("Volume adicionado com sucesso:", response.data);
-
-        toast.success("Volume adicionado com sucesso!");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
-      } else {
-        throw new Error("Falha ao adicionar o volume ao manga");
-      }
-    } catch (error) {
-      console.error("Erro ao adicionar volume:", error);
-    }
-  };
-
   if (!manga) {
     return <div>Loading...</div>;
   }
@@ -276,232 +185,20 @@ export default function MangaSearchById({ mangaUrl }: CP) {
                 {manga.synopsis}
               </p>
               <div className="flex gap-2">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline">Adicionar Volume</Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>
-                        Adicionar informações do volume para {manga.title}
-                      </DialogTitle>
-                      <DialogDescription>
-                        Faça alterações nas informações do manga aqui. Clique em
-                        salvar quando terminar.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="volumeNumber" className="text-right">
-                          Número do Volume
-                        </Label>
-                        <Input
-                          id="volumeNumber"
-                          type="number"
-                          value={volumeNumber}
-                          onChange={(e) => setVolumeNumber(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="releaseDate" className="text-right">
-                          Data de Lançamento
-                        </Label>
-                        <Input
-                          id="releaseDate"
-                          type="text"
-                          value={releaseDate}
-                          onChange={(e) => setReleaseDate(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="chapters" className="text-right">
-                          Capítulos
-                        </Label>
-                        <Input
-                          id="chapters"
-                          type="text"
-                          value={chapters}
-                          onChange={(e) => setChapters(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="imageUrl" className="text-right">
-                          URL da Imagem
-                        </Label>
-                        <Input
-                          id="imageUrl"
-                          value={imageUrl}
-                          onChange={(e) => setImageUrl(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="price" className="text-right">
-                          Preço
-                        </Label>
-                        <Input
-                          id="price"
-                          type="number"
-                          value={price}
-                          onChange={(e) => setPrice(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="link" className="text-right">
-                          Link
-                        </Label>
-                        <Input
-                          id="link"
-                          value={link}
-                          onChange={(e) => setLink(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button onClick={handleAddVolume}>
-                        Salvar Alterações
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline">Editar Informações</Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>
-                        Editar Informações de {manga.title}
-                      </DialogTitle>
-                      <DialogDescription>
-                        Faça alterações nas informações do manga aqui. Clique em
-                        salvar quando terminar.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="titulo" className="text-right">
-                          Título
-                        </Label>
-                        <Input
-                          id="titulo"
-                          defaultValue={title}
-                          onChange={(e) => setTitle(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label
-                          htmlFor="alternativeTitles"
-                          className="text-right"
-                        >
-                          Títulos Alternativos
-                        </Label>
-                        <Input
-                          id="alternativeTitles"
-                          defaultValue={alternativeTitles}
-                          onChange={(e) => setAlternativeTitles(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="autor" className="text-right">
-                          Autor
-                        </Label>
-                        <Input
-                          id="autor"
-                          defaultValue={author}
-                          onChange={(e) => setAuthor(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="synopsis" className="text-right">
-                          Sinopse
-                        </Label>
-                        <textarea
-                          id="synopsis"
-                          defaultValue={synopsis}
-                          onChange={(e) => setSynopsis(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="genero" className="text-right">
-                          Gênero
-                        </Label>
-                        <Input
-                          id="genero"
-                          defaultValue={genres}
-                          onChange={(e) => setGenres(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="publisherBy" className="text-right">
-                          Publicado por
-                        </Label>
-                        <Input
-                          id="publisherBy"
-                          defaultValue={publisherBy}
-                          onChange={(e) => setPublisherBy(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="score" className="text-right">
-                          Pontuação
-                        </Label>
-                        <Input
-                          id="score"
-                          defaultValue={score}
-                          onChange={(e) => setScore(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="releaseDate" className="text-right">
-                          Ano de Publicação
-                        </Label>
-                        <Input
-                          id="releaseDate"
-                          defaultValue={releaseDate}
-                          onChange={(e) => setReleaseDate(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="imageURL" className="text-right">
-                          URL da Imagem
-                        </Label>
-                        <Input
-                          id="imageURL"
-                          defaultValue={imageUrlManga}
-                          onChange={(e) => setImageUrlManga(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleDeleteManga(manga._id)}
-                      >
-                        Remover Mangá
-                      </Button>
-                      <Button onClick={handleSaveChanges}>
-                        Salvar Alterações
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-
+                <AddVolume mangaId={manga._id} mangaTitle={manga.title} />
+                <EditManga
+                 mangaId={manga._id}
+                 mangaTitle={manga.title}
+                 M_imageUrl={manga.imageUrl}
+                 M_title={manga.title}
+                 M_alternativeTitles={manga.alternativeTitles}
+                 M_author={manga.author}
+                 M_synopsis={manga.synopsis}
+                 M_genres={manga.genres}
+                 M_publisherBy={manga.publisherBy}
+                 M_score={manga.score}
+                 M_releaseDate={manga.releaseDate}
+                />
               </div>
             </div>
             <div className="hidden md:block">
