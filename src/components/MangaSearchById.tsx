@@ -32,6 +32,8 @@ import Image from "next/image";
 import axios from "axios";
 import AddVolume from "./Volumes/AddVolume";
 import EditManga from "./Mangas/EditManga";
+import AddCharacter from "./Characters/AddCharacter";
+import EditCharacter from "./Characters/EditCharacter";
 
 interface Characters {
   _id: string;
@@ -96,8 +98,6 @@ export default function MangaSearchById({ mangaUrl }: CP) {
   const [price, setPrice] = useState("");
   const [link, setLink] = useState("");
 
-
-
   useEffect(() => {
     const fetchManga = async () => {
       try {
@@ -135,36 +135,6 @@ export default function MangaSearchById({ mangaUrl }: CP) {
     fetchManga();
   }, [mangaUrl]);
 
-  const handleRemoveVolume = async (volumeId: string) => {
-    try {
-      const response = await fetch(
-        `https://api-mangazone.onrender.com/api/mangas/${manga?._id}/volumes/${volumeId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Falha ao excluir o volume");
-      }
-
-      // Exibindo uma mensagem de sucesso utilizando toast
-      toast.success("Volume excluído com sucesso!");
-
-      // Atualizando a interface após a exclusão (opcional)
-      setTimeout(() => {
-        window.location.reload(); // Recarrega a página após 1.5 segundos
-      }, 1500);
-    } catch (error) {
-      console.error("Erro ao excluir o volume:", error);
-      // Exibindo mensagem de erro utilizando toast
-      toast.error("Erro ao excluir o volume. Tente novamente mais tarde.");
-    }
-  };
-
   if (!manga) {
     return <div>Loading...</div>;
   }
@@ -187,17 +157,17 @@ export default function MangaSearchById({ mangaUrl }: CP) {
               <div className="flex gap-2">
                 <AddVolume mangaId={manga._id} mangaTitle={manga.title} />
                 <EditManga
-                 mangaId={manga._id}
-                 mangaTitle={manga.title}
-                 M_imageUrl={manga.imageUrl}
-                 M_title={manga.title}
-                 M_alternativeTitles={manga.alternativeTitles}
-                 M_author={manga.author}
-                 M_synopsis={manga.synopsis}
-                 M_genres={manga.genres}
-                 M_publisherBy={manga.publisherBy}
-                 M_score={manga.score}
-                 M_releaseDate={manga.releaseDate}
+                  mangaId={manga._id}
+                  mangaTitle={manga.title}
+                  M_imageUrl={manga.imageUrl}
+                  M_title={manga.title}
+                  M_alternativeTitles={manga.alternativeTitles}
+                  M_author={manga.author}
+                  M_synopsis={manga.synopsis}
+                  M_genres={manga.genres}
+                  M_publisherBy={manga.publisherBy}
+                  M_score={manga.score}
+                  M_releaseDate={manga.releaseDate}
                 />
               </div>
             </div>
@@ -214,80 +184,99 @@ export default function MangaSearchById({ mangaUrl }: CP) {
         </div>
       </section>
       <section className="py-12 md:py-16 lg:py-20">
-        <div className="container max-w-6xl px-4 mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {manga.characters.map((character) => (
-              <div
-                key={character._id}
-                className="items-center flex  flex-col border rounded-lg my-4"
-              >
-                <Image
-                  src={character.photoUrl || "/placeholder.svg"}
-                  alt={character.name}
-                  className="w-[150px] h-[150px] rounded-lg mb-4 object-cover"
-                  width={150}
-                  height={150}
-                />
-                <h3 className="text-lg font-medium mb-2">{character.name}</h3>
-              </div>
-            ))}
+        <div className="container flex max-w-6xl px-4 mx-auto">
+          <div className="w-2/3 container max-w-6xl px-4 mx-auto">
+            <h2 className="text-2xl md:text-3xl lg:text-3xl font-medium mb-8">
+              Volumes adicionados: {manga.volumes.length}
+            </h2>
+            <div className="w-full">
+              <Table>
+                <TableCaption>
+                  A list of volumes for {manga.title}.
+                </TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Volume</TableHead>
+                    <TableHead>Image</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Opções</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {manga.volumes
+                    .sort((a, b) => a.number - b.number)
+                    .map((volume) => (
+                      <TableRow key={volume._id}>
+                        <TableCell className="font-medium">
+                          {volume.number}
+                        </TableCell>
+                        <TableCell>
+                          <img
+                            src={volume.image || "/placeholder.svg"}
+                            alt={`Volume ${volume.number} Cover`}
+                            width={100}
+                            height={150}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {manga.title} Vol. {volume.number}
+                        </TableCell>
+                        <TableCell>R$ {volume.price}</TableCell>
+                        <TableCell>
+                          <EditVolumes
+                            mangaId={manga._id}
+                            volumeId={volume._id}
+                            volumeNumberExisting={volume.number}
+                            releaseDateExisting={volume.date}
+                            chaptersExisting={volume.chapters}
+                            imageUrlExisting={volume.image}
+                            priceExisting={volume.price}
+                            linkExisting={volume.linkAmazon}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
-        </div>
-        <div className="container max-w-6xl px-4 mx-auto">
-          <h2 className="text-2xl md:text-3xl lg:text-3xl font-medium mb-8">
-            Volumes adicionados: {manga.volumes.length}
-          </h2>
-          <div className="w-full">
-            <Table>
-              <TableCaption>A list of volumes for {manga.title}.</TableCaption>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Volume</TableHead>
-                  <TableHead>Image</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Opções</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {manga.volumes
-                  .sort((a, b) => a.number - b.number)
-                  .map((volume) => (
-                    <TableRow key={volume._id}>
-                      <TableCell className="font-medium">
-                        {volume.number}
-                      </TableCell>
-                      <TableCell>
-                        <img
-                          src={volume.image || "/placeholder.svg"}
-                          alt={`Volume ${volume.number} Cover`}
-                          width={100}
-                          height={150}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {manga.title} Vol. {volume.number}
-                      </TableCell>
-                      <TableCell>R$ {volume.price}</TableCell>
-                      <TableCell>
-                        <EditVolumes
-                          mangaId={manga._id}
-                          volumeId={volume._id}
-                          volumeNumberExisting={volume.number}
-                          releaseDateExisting={volume.date}
-                          chaptersExisting={volume.chapters}
-                          imageUrlExisting={volume.image}
-                          priceExisting={volume.price}
-                          linkExisting={volume.linkAmazon}
-                          handleRemoveVolume={() =>
-                            handleRemoveVolume(volume._id)
-                          }
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
+          <div className="w-1/3">
+            <div className="flex w-full items-center justify-between">
+              <h1>Total de Personagens: {manga.characters.length}</h1>
+              <AddCharacter mangaId={manga._id} mangaTitle={manga.title} />
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {manga.characters.map((character) => (
+                <div
+                  key={character._id}
+                  className="items-center flex  flex-col border rounded-lg my-4"
+                >
+                  <Image
+                    src={
+                      character.photoUrl?.startsWith("http")
+                        ? character.photoUrl
+                        : "https://i.pinimg.com/564x/09/21/fc/0921fc87aa989330b8d403014bf4f340.jpg"
+                    }
+                    alt={character.name}
+                    className="w-[150px] h-[150px] rounded-t-lg mb-4 object-cover"
+                    width={150}
+                    height={150}
+                  />
+                  <h3 className="text-base text-center font-medium mb-2">{character.name}</h3>
+
+                  <EditCharacter
+                    mangaId={manga._id}
+                    characterId={character._id}
+                    characterName={character.name}
+                    characterPhotoUrl={character.photoUrl}
+                    characterAge={character.age}
+                    characterBiography={character.biography}
+                    characterSpoiler={character.spoiler}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

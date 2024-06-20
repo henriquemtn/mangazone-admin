@@ -19,6 +19,7 @@ import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CircleUserRound } from "lucide-react";
 import Search from "./Search";
+import Cookie from 'js-cookie';
 
 interface User {
   displayName: string;
@@ -40,6 +41,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     // Limpar o localStorage e redirecionar para a página de login
+    Cookie.remove("token");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null); // Limpar o estado do usuário
@@ -69,10 +71,10 @@ export default function Navbar() {
             Mangás
           </Link>
           <Link
-            href="/artistas"
+            href="/voiceActors"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
-            Artistas
+           Dubladores
           </Link>
           <Link
             href="#"
@@ -117,10 +119,10 @@ export default function Navbar() {
                 Mangás
               </Link>
               <Link
-                href="/artistas"
+                href="/voiceActors"
                 className="text-muted-foreground hover:text-foreground"
               >
-                Artistas
+               Dubladores
               </Link>
               <Link
                 href="#"
@@ -166,9 +168,9 @@ export default function Navbar() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{user?.displayName}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem><Link href='/settings'>Settings</Link></DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>

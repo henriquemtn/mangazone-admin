@@ -14,6 +14,7 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import toast from "react-hot-toast";
+import { Pencil, Trash2 } from "lucide-react";
 
 const EditVolumes = ({
   volumeId,
@@ -24,59 +25,94 @@ const EditVolumes = ({
   imageUrlExisting,
   priceExisting,
   linkExisting,
-  handleRemoveVolume,
 }: any) => {
-    const [number, setNumber] = useState(volumeNumberExisting || "");
-    const [releaseDate, setReleaseDate] = useState(releaseDateExisting || "");
-    const [chapters, setChapters] = useState(chaptersExisting || "");
-    const [imageUrl, setImageUrl] = useState(imageUrlExisting || "");
-    const [price, setPrice] = useState(priceExisting || "");
-    const [link, setLink] = useState(linkExisting || "");
-  
-    const handleChangeVolume = async (volumeId: string) => {
-        // Dados do volume a ser modificado
-        const volumeData = {
-          number: number,
-          date: releaseDate,
-          chapters: chapters,
-          image: imageUrl,
-          price: price,
-          linkAmazon: link,
-        };
-      
-        try {
-          const response = await fetch(`https://api-mangazone.onrender.com/api/mangas/${mangaId}/volumes/${volumeId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(volumeData),
-          });
-      
-          if (!response.ok) {
-            throw new Error('Falha ao modificar o volume do mangá');
-          }
-      
-          toast.success('Informações do volume modificadas com sucesso!');
-      
-          setTimeout(() => {
-            window.location.reload();
-          }, 1500);
-        } catch (error) {
-          console.error('Erro ao modificar o volume do mangá:', error);
-          toast.error('Erro ao modificar informações do volume. Tente novamente mais tarde.');
+  const [number, setNumber] = useState(volumeNumberExisting || "");
+  const [releaseDate, setReleaseDate] = useState(releaseDateExisting || "");
+  const [chapters, setChapters] = useState(chaptersExisting || "");
+  const [imageUrl, setImageUrl] = useState(imageUrlExisting || "");
+  const [price, setPrice] = useState(priceExisting || "");
+  const [link, setLink] = useState(linkExisting || "");
+
+  const handleChangeVolume = async (volumeId: string) => {
+    // Dados do volume a ser modificado
+    const volumeData = {
+      number: number,
+      date: releaseDate,
+      chapters: chapters,
+      image: imageUrl,
+      price: price,
+      linkAmazon: link,
+    };
+
+    try {
+      const response = await fetch(
+        `https://api-mangazone.onrender.com/api/mangas/${mangaId}/volumes/${volumeId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(volumeData),
         }
-      };
+      );
+
+      if (!response.ok) {
+        throw new Error("Falha ao modificar o volume do mangá");
+      }
+
+      toast.success("Informações do volume modificadas com sucesso!");
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (error) {
+      console.error("Erro ao modificar o volume do mangá:", error);
+      toast.error(
+        "Erro ao modificar informações do volume. Tente novamente mais tarde."
+      );
+    }
+  };
+
+  const handleRemoveVolume = async (volumeId: string) => {
+    try {
+      const response = await fetch(
+        `https://api-mangazone.onrender.com/api/mangas/${mangaId}/volumes/${volumeId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Falha ao excluir o volume");
+      }
+
+      // Exibindo uma mensagem de sucesso utilizando toast
+      toast.success("Volume excluído com sucesso!");
+
+      // Atualizando a interface após a exclusão (opcional)
+      setTimeout(() => {
+        window.location.reload(); // Recarrega a página após 1.5 segundos
+      }, 1500);
+    } catch (error) {
+      console.error("Erro ao excluir o volume:", error);
+      // Exibindo mensagem de erro utilizando toast
+      toast.error("Erro ao excluir o volume. Tente novamente mais tarde.");
+    }
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Alterar Volume</Button>
+        <Button variant="outline" className="rounded-full w-14 h-14">
+          <Pencil size={14} />
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            Alterar informações do Volume {number}
-          </DialogTitle>
+          <DialogTitle>Alterar informações do Volume {number}</DialogTitle>
           <DialogDescription>
             Faça alterações nas informações do manga aqui. Clique em salvar
             quando terminar.
@@ -155,12 +191,24 @@ const EditVolumes = ({
           </div>
         </div>
         <DialogFooter>
-          <Button
-            variant="destructive"
-            onClick={() => handleRemoveVolume(volumeId)}
-          >
-            Excluir Volume
-          </Button>
+          <Dialog>
+            <DialogTrigger>
+              <Button variant="destructive">
+                <Trash2 size={14} />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <Label className="text-center text-base">
+                Tem certeza que quer excluir este Volume?
+              </Label>
+              <Button
+                variant="destructive"
+                onClick={() => handleRemoveVolume(volumeId)}
+              >
+                Excluir Volume
+              </Button>
+            </DialogContent>
+          </Dialog>
           <Button onClick={() => handleChangeVolume(volumeId)}>
             Salvar Alterações
           </Button>

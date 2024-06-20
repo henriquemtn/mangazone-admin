@@ -10,8 +10,8 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const adminData = sessionStorage.getItem("user");
-    if (adminData) {
+    const token = sessionStorage.getItem("token");
+    if (token) {
       router.push("/dashboard");
     }
   }, [router]);

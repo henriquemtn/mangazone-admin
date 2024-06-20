@@ -3,15 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation"; 
-
-interface Manga {
-  _id: string;
-  title: string;
-  author: string;
-  genre: string;
-  releaseDate: string;
-  imageUrl: string;
-}
+import { Manga } from "@/types/types";
 
 const GetMangas: React.FC = () => {
   const [mangas, setMangas] = useState<Manga[]>([]);
@@ -84,7 +76,7 @@ const GetMangas: React.FC = () => {
             <div className="p-4">
               <h3 className="text-lg font-bold mb-2">{manga.title}</h3>
               <p className="text-gray-500 mb-2">{manga.author}</p>
-              <p className="text-gray-500 mb-2">{manga.genre}</p>
+              <p className="text-gray-500 mb-2">{manga.genres}</p>
               <p className="text-gray-500 mb-2">
                 Ano de publicação: {manga.releaseDate}
               </p>

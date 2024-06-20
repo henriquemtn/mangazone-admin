@@ -22,19 +22,8 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { Manga } from "@/types/types";
 
-interface Manga {
-  _id: string;
-  imageUrl: string;
-  title: string;
-  alternativeTitles: string;
-  author: string;
-  synopsis: string;
-  genres: string;
-  publisherBy: string;
-  score: number;
-  releaseDate: string;
-}
 
 export default function AddManga() {
   const router = useRouter();

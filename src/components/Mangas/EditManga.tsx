@@ -16,20 +16,7 @@ import { Button } from "../ui/button";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-
-interface Manga {
-  mangaId: string;
-  mangaTitle: string;
-  M_imageUrl: string;
-  M_title: string;
-  M_alternativeTitles: string;
-  M_author: string;
-  M_synopsis: string;
-  M_genres: string;
-  M_publisherBy: string;
-  M_score: number;
-  M_releaseDate: string;
-}
+import { ModifyManga } from "@/types/types";
 
 export default function EditManga({
   mangaId,
@@ -43,7 +30,7 @@ export default function EditManga({
   M_publisherBy,
   M_score,
   M_releaseDate,
-}: Manga) {
+}: ModifyManga) {
   const [title, setTitle] = useState(M_title);
   const [alternativeTitles, setAlternativeTitles] =
     useState(M_alternativeTitles);
