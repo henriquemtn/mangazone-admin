@@ -132,7 +132,7 @@ export default function EditManga({
 
   const fetchGenres = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/genres");
+      const response = await axios.get("https://api-mangazone.onrender.com/api/genres");
       setGenresOptions(response.data);
     } catch (error) {
       console.error("Erro ao buscar gêneros:", error);
