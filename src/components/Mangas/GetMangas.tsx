@@ -65,7 +65,7 @@ const GetMangas: React.FC = () => {
           <div
             key={manga._id}
             onClick={() => router.push(`/mangas/${manga._id}`)}
-            className="bg-white dark:bg-gray-950 rounded-lg overflow-hidden shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
+            className="bg-white cursor-pointer dark:bg-gray-950 rounded-lg overflow-hidden shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
           >
             <img
               src={manga.imageUrl}

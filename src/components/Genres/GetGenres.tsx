@@ -7,22 +7,25 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Button } from "@/components/ui/button"
 import { FilePenIcon, TrashIcon } from "lucide-react"
 import { Genres } from "@/types/types"
+import toast from "react-hot-toast"
+import { useRouter } from "next/navigation"
 
 export default function GetGenres() {
   const [search, setSearch] = useState("")
   const [genres, setGenres] = useState<Genres[]>([])
+  const router = useRouter();
 
   useEffect(() => {
-    const fetchEditoras = async () => {
+    const fetchGenres = async () => {
       try {
         const response = await axios.get("https://api-mangazone.onrender.com/api/genres") 
         setGenres(response.data)
       } catch (error) {
-        console.error("Failed to fetch editoras", error)
+        console.error("Failed to fetch Genres", error)
       }
     }
 
-    fetchEditoras()
+    fetchGenres()
   }, [])
 
   const filteredData = useMemo(() => {
@@ -30,6 +33,24 @@ export default function GetGenres() {
       item.name.toLowerCase().includes(search.toLowerCase())
     )
   }, [search, genres])
+
+  const handleDelete = async (genresId: string) => {
+    try {
+      const response = await axios.delete(`https://api-mangazone.onrender.com/api/genres/${genresId}`);
+
+      if (response.status === 200) {
+        toast.success("Gênero excluído com sucesso!");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+        
+      } else {
+        toast.error(`Erro ao excluir genres: ${response.data.message}`);
+      }
+    } catch (error) {
+      toast.error("Erro ao excluir genres. Por favor, tente novamente mais tarde.");
+    }
+  }
 
   return (
     <div className="border rounded-lg w-full">
@@ -59,7 +80,7 @@ export default function GetGenres() {
                     <FilePenIcon className="h-4 w-4" />
                     <span className="sr-only">Edit</span>
                   </Button>
-                  <Button variant="destructive" size="icon">
+                  <Button onClick={() => handleDelete(item._id)} variant="destructive" size="icon">
                     <TrashIcon className="h-4 w-4" />
                     <span className="sr-only">Delete</span>
                   </Button>

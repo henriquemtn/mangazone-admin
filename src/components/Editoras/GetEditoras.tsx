@@ -7,6 +7,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Button } from "@/components/ui/button"
 import { FilePenIcon, TrashIcon } from "lucide-react"
 import { Editora } from "@/types/types"
+import toast from "react-hot-toast"
 
 export default function GetEditoras() {
   const [search, setSearch] = useState("")
@@ -30,6 +31,23 @@ export default function GetEditoras() {
       item.name.toLowerCase().includes(search.toLowerCase())
     )
   }, [search, editoras])
+
+  const handleDelete = async (editoraId: string) => {
+    try {
+      const response = await axios.delete(`https://api-mangazone.onrender.com/api/editoras/${editoraId}`);
+
+      if (response.status === 200) {
+        toast.success("Editora excluída com sucesso!");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        toast.error(`Erro ao excluir editora: ${response.data.message}`);
+      }
+    } catch (error) {
+      toast.error("Erro ao excluir editora. Por favor, tente novamente mais tarde.");
+    }
+  }
 
   return (
     <div className="border rounded-lg w-full">
@@ -61,7 +79,7 @@ export default function GetEditoras() {
                     <FilePenIcon className="h-4 w-4" />
                     <span className="sr-only">Edit</span>
                   </Button>
-                  <Button variant="destructive" size="icon">
+                  <Button onClick={() => handleDelete(item._id)} variant="destructive" size="icon">
                     <TrashIcon className="h-4 w-4" />
                     <span className="sr-only">Delete</span>
                   </Button>
