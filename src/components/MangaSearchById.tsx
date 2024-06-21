@@ -34,16 +34,7 @@ import AddVolume from "./Volumes/AddVolume";
 import EditManga from "./Mangas/EditManga";
 import AddCharacter from "./Characters/AddCharacter";
 import EditCharacter from "./Characters/EditCharacter";
-
-interface Characters {
-  _id: string;
-  name: string;
-  photoUrl: string;
-  spoiler: string;
-  age: number;
-  biography: string;
-  voiceActors: string[];
-}
+import { Characters } from "@/types/types";
 
 interface Volume {
   _id: string;
@@ -77,26 +68,6 @@ interface CP {
 
 export default function MangaSearchById({ mangaUrl }: CP) {
   const [manga, setManga] = useState<Manga | null>(null);
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [title, setTitle] = useState("");
-  const [alternativeTitles, setAlternativeTitles] = useState("");
-  const [author, setAuthor] = useState("");
-  const [synopsis, setSynopsis] = useState("");
-  const [genres, setGenres] = useState("");
-  const [publisherBy, setPublisherBy] = useState("");
-  const [score, setScore] = useState("");
-  const [releaseDate, setReleaseDate] = useState("");
-  const [imageUrlManga, setImageUrlManga] = useState("");
-
-  const [volumeNumber, setVolumeNumber] = useState("");
-  const [date, setDate] = useState("");
-  const [isAlternativeCover, setIsAlternativeCover] = useState(false);
-  const [chapters, setChapters] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [price, setPrice] = useState("");
-  const [link, setLink] = useState("");
 
   useEffect(() => {
     const fetchManga = async () => {
@@ -107,22 +78,6 @@ export default function MangaSearchById({ mangaUrl }: CP) {
         }
         const data = await response.json();
         setManga(data);
-        setTitle(data.title);
-        setAlternativeTitles(data.alternativeTitles);
-        setSynopsis(data.synopsis);
-        setScore(data.score);
-        setPublisherBy(data.publisherBy);
-        setAuthor(data.author);
-        setGenres(data.genres);
-        setReleaseDate(data.releaseDate);
-        setImageUrlManga(data.imageUrl);
-        setVolumeNumber(data.volumeNumber);
-        setDate(data.Date);
-        setIsAlternativeCover(data.isAlternativeCover);
-        setChapters(data.chapters);
-        setImageUrl(data.imageUrl);
-        setPrice(data.price);
-        setLink(data.link);
       } catch (error) {
         if (error instanceof Error) {
           console.error(error.message);

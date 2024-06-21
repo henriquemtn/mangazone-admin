@@ -4,6 +4,7 @@ export interface User {
   username: string;
   displayName: string;
   biography?: string;
+  gender?: string;
   photoURL?: string;
   location?: string;
   favorites?: string[];
@@ -12,8 +13,18 @@ export interface User {
   comments?: string[];
   friends?: string[];
   wishlist?: string[];
+  mangaCollection?: string[];
   role?: string;
 }
+
+export interface EditUserProps {
+  displayName: string;
+  username: string;
+  biography: string;
+  gender: string;
+  photoURL: string;
+  location: string;
+};
 
 export interface Manga {
   _id: string;
@@ -42,6 +53,12 @@ export interface ModifyManga {
   M_releaseDate: string;
 }
 
+export interface DubCharacter {
+  _id: string;
+  mangaId: string;
+  charactersId: string[];
+}
+
 export interface VoiceActor {
   _id: string;
   name: string;
@@ -50,6 +67,27 @@ export interface VoiceActor {
   nationality: string;
   favorites: string[];
   biography: string;
-  dubCharacters: string[];
+  dubCharacters: DubCharacter[];
   __v: number;
+}
+
+export interface Characters {
+  _id: string;
+  name: string;
+  photoUrl: string;
+  spoiler: string;
+  age: number;
+  biography: string;
+  voiceActors: string[];
+}
+
+
+export interface EditCharacter {
+  characterId: string;
+  mangaId: string;
+  characterName: string;
+  characterPhotoUrl: string;
+  characterAge: number;
+  characterBiography: string;
+  characterSpoiler: string;
 }
