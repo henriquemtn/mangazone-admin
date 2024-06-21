@@ -54,7 +54,7 @@ interface Manga {
   alternativeTitles: string;
   author: string;
   synopsis: string;
-  genres: string;
+  genres: string[];
   publisherBy: string;
   score: number;
   releaseDate: string;
@@ -106,6 +106,7 @@ export default function MangaSearchById({ mangaUrl }: CP) {
               <p className="text-gray-500 dark:text-gray-400 text-lg md:text-xl mb-6">
                 By {manga.author}
               </p>
+              <p>{manga.genres}</p>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
                 {manga.synopsis}
               </p>

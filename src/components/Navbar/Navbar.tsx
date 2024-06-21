@@ -19,7 +19,7 @@ import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CircleUserRound } from "lucide-react";
 import Search from "./Search";
-import Cookie from 'js-cookie';
+import Cookie from "js-cookie";
 
 interface User {
   displayName: string;
@@ -71,16 +71,22 @@ export default function Navbar() {
             Mangás
           </Link>
           <Link
-            href="/voiceActors"
+            href="/artistas"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
-           Dubladores
+            Artistas
           </Link>
           <Link
-            href="#"
+            href="/editoras"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
             Editoras
+          </Link>
+          <Link
+            href="/genres"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            Gêneros
           </Link>
           <Link
             href="#"
@@ -119,16 +125,22 @@ export default function Navbar() {
                 Mangás
               </Link>
               <Link
-                href="/voiceActors"
+                href="/artistas"
                 className="text-muted-foreground hover:text-foreground"
               >
-               Dubladores
+                Artistas
               </Link>
               <Link
-                href="#"
+                href="/editoras"
                 className="text-muted-foreground hover:text-foreground"
               >
                 Editoras
+              </Link>
+              <Link
+                href="/genres"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Gêneros
               </Link>
               <Link
                 href="#"
@@ -148,7 +160,7 @@ export default function Navbar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
-              {user ? (
+                {user ? (
                   <>
                     <Avatar>
                       <AvatarFallback>
@@ -170,7 +182,9 @@ export default function Navbar() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{user?.displayName}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem><Link href='/settings'>Settings</Link></DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href="/settings">Settings</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>

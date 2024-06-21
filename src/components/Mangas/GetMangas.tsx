@@ -51,8 +51,6 @@ const GetMangas: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-4">Lista de Mangás</h1>
-
       {/* Campo de filtro */}
       <input
         type="text"
@@ -62,31 +60,18 @@ const GetMangas: React.FC = () => {
         className="border border-gray-300 p-2 mb-4 rounded-lg w-full"
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         {currentMangas.map((manga) => (
           <div
             key={manga._id}
+            onClick={() => router.push(`/mangas/${manga._id}`)}
             className="bg-white dark:bg-gray-950 rounded-lg overflow-hidden shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
           >
             <img
               src={manga.imageUrl}
               alt={manga.title}
-              className="w-full h-64 object-cover"
+              className="w-full h-80 object-cover"
             />
-            <div className="p-4">
-              <h3 className="text-lg font-bold mb-2">{manga.title}</h3>
-              <p className="text-gray-500 mb-2">{manga.author}</p>
-              <p className="text-gray-500 mb-2">{manga.genres}</p>
-              <p className="text-gray-500 mb-2">
-                Ano de publicação: {manga.releaseDate}
-              </p>
-              <Button
-                onClick={() => router.push(`/mangas/${manga._id}`)}
-                variant="outline"
-              >
-                Ver Detalhes
-              </Button>
-            </div>
           </div>
         ))}
       </div>

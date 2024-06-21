@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState } from "react";
 import {
@@ -21,16 +21,21 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { VoiceActor } from "@/types/types";
+import { Artist } from "@/types/types";
+import { Select } from "../ui/select";
+import { SelectContent, SelectItem } from "@radix-ui/react-select";
+import SelectInput from "../Select";
+import axios from "axios";
 
-const AddVoiceActor: React.FC = () => {
+const AddArtist: React.FC = () => {
   const router = useRouter();
 
-  const [newVoiceActor, setNewVoiceActor] = useState<VoiceActor>({
+  const [newArtist, setNewArtist] = useState<Artist>({
     _id: "",
     name: "",
     photoUrl: "",
     birthday: "",
+    role: "",
     nationality: "",
     favorites: [],
     biography: "",
@@ -38,53 +43,49 @@ const AddVoiceActor: React.FC = () => {
     __v: 0,
   });
 
-  const handleAddVoiceActor = async () => {
+  const handleAddArtist = async () => {
     try {
-      // Faz a requisição POST para adicionar o dublador
-      const response = await fetch(
-        "https://api-mangazone.onrender.com/api/voiceActors",
+      const response = await axios.post(
+        "https://api-mangazone.onrender.com/api/artists",
+        newArtist,
         {
-          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(newVoiceActor),
         }
       );
-
-      // Verifica se a requisição foi bem-sucedida
-      if (!response.ok) {
-        throw new Error("Falha ao adicionar o dublador");
+  
+      if (response.status !== 201) {
+        throw new Error("Falha ao adicionar o Artista");
       }
-
-      // Exibe um toast de sucesso
-      toast.success("Dublador adicionado com sucesso!");
-      // Redireciona para a página de dubladores (simulado)
+  
+      toast.success("Artista adicionado com sucesso!");
       setTimeout(() => {
-        router.push("/voiceActors");
+        router.push("/artistas");
       }, 1500);
     } catch (error) {
-      console.error("Erro ao adicionar o dublador:", error);
-      toast.error("Erro ao adicionar o dublador. Tente novamente mais tarde.");
+      console.error("Erro ao adicionar o artista:", error);
+      toast.error("Erro ao adicionar o artista. Tente novamente mais tarde.");
     }
   };
+  
 
   return (
     <Card className="sm:col-span-2">
       <CardHeader className="pb-3">
-        <CardTitle>Adicionar um Novo Dublador</CardTitle>
+        <CardTitle>Adicionar um Novo Artista</CardTitle>
         <CardDescription className="max-w-lg text-balance leading-relaxed">
-          Adicione um novo Dublador ao banco de dados!
+          Adicione um novo Artista ao banco de dados!
         </CardDescription>
       </CardHeader>
       <CardFooter>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline">Adicionar Dublador</Button>
+            <Button variant="outline">Adicionar Artista</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Adicione um Novo Dublador</DialogTitle>
+              <DialogTitle>Adicione um Novo Artista</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
@@ -93,10 +94,28 @@ const AddVoiceActor: React.FC = () => {
                 </Label>
                 <Input
                   id="name"
-                  value={newVoiceActor.name}
+                  value={newArtist.name}
                   onChange={(e) =>
-                    setNewVoiceActor({ ...newVoiceActor, name: e.target.value })
+                    setNewArtist({ ...newArtist, name: e.target.value })
                   }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Cargo
+                </Label>
+                <SelectInput
+                  options={[
+                    { value: "author", label: "Autor" },
+                    { value: "voiceActor", label: "Dublador" },
+                  ]}
+                  id="role"
+                  value={newArtist.role}
+                  onChange={(e) =>
+                    setNewArtist({ ...newArtist, role: e.target.value })
+                  }
+                  placeholder="Escolha um cargo"
                   className="col-span-3"
                 />
               </div>
@@ -106,10 +125,10 @@ const AddVoiceActor: React.FC = () => {
                 </Label>
                 <Input
                   id="photoUrl"
-                  value={newVoiceActor.photoUrl}
+                  value={newArtist.photoUrl}
                   onChange={(e) =>
-                    setNewVoiceActor({
-                      ...newVoiceActor,
+                    setNewArtist({
+                      ...newArtist,
                       photoUrl: e.target.value,
                     })
                   }
@@ -122,10 +141,10 @@ const AddVoiceActor: React.FC = () => {
                 </Label>
                 <Input
                   id="birthday"
-                  value={newVoiceActor.birthday}
+                  value={newArtist.birthday}
                   onChange={(e) =>
-                    setNewVoiceActor({
-                      ...newVoiceActor,
+                    setNewArtist({
+                      ...newArtist,
                       birthday: e.target.value,
                     })
                   }
@@ -136,12 +155,21 @@ const AddVoiceActor: React.FC = () => {
                 <Label htmlFor="nationality" className="text-right">
                   Nacionalidade
                 </Label>
-                <Input
+                <SelectInput
+                  options={[
+                    { value: "brasileira", label: "Brasileira" },
+                    { value: "portugues", label: "Português" },
+                    { value: "japones", label: "Japonês" },
+                    { value: "coreano", label: "Coreano" },
+                    { value: "americano", label: "Americano" },
+                    { value: "outro", label: "Outro" },
+                  ]}
                   id="nationality"
-                  value={newVoiceActor.nationality}
+                  placeholder="Escolha a nacionalidade"
+                  value={newArtist.nationality}
                   onChange={(e) =>
-                    setNewVoiceActor({
-                      ...newVoiceActor,
+                    setNewArtist({
+                      ...newArtist,
                       nationality: e.target.value,
                     })
                   }
@@ -154,10 +182,10 @@ const AddVoiceActor: React.FC = () => {
                 </Label>
                 <Input
                   id="favorites"
-                  value={newVoiceActor.favorites.join(", ")}
+                  value={newArtist.favorites.join(", ")}
                   onChange={(e) =>
-                    setNewVoiceActor({
-                      ...newVoiceActor,
+                    setNewArtist({
+                      ...newArtist,
                       favorites: e.target.value.split(", "),
                     })
                   }
@@ -170,10 +198,10 @@ const AddVoiceActor: React.FC = () => {
                 </Label>
                 <Input
                   id="biography"
-                  value={newVoiceActor.biography}
+                  value={newArtist.biography}
                   onChange={(e) =>
-                    setNewVoiceActor({
-                      ...newVoiceActor,
+                    setNewArtist({
+                      ...newArtist,
                       biography: e.target.value,
                     })
                   }
@@ -182,7 +210,7 @@ const AddVoiceActor: React.FC = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={handleAddVoiceActor}>Salvar</Button>
+              <Button onClick={handleAddArtist}>Salvar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -191,4 +219,4 @@ const AddVoiceActor: React.FC = () => {
   );
 };
 
-export default AddVoiceActor;
+export default AddArtist;

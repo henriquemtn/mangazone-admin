@@ -7,10 +7,10 @@ import Image from "next/image";
 import EditCharacter from "./EditCharacter";
 
 interface CP {
-  mangaId: string,
+  mangaId: string;
 }
 
-const CharacterDetails = ({mangaId}: CP) => {
+const CharacterDetails = ({ mangaId }: CP) => {
   const [character, setCharacter] = useState<Characters | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

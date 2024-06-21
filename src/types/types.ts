@@ -33,7 +33,7 @@ export interface Manga {
   alternativeTitles: string;
   author: string;
   synopsis: string;
-  genres: string;
+  genres: string[];
   publisherBy: string;
   score: number;
   releaseDate: string;
@@ -47,7 +47,7 @@ export interface ModifyManga {
   M_alternativeTitles: string;
   M_author: string;
   M_synopsis: string;
-  M_genres: string;
+  M_genres: string[];
   M_publisherBy: string;
   M_score: number;
   M_releaseDate: string;
@@ -59,12 +59,13 @@ export interface DubCharacter {
   charactersId: string[];
 }
 
-export interface VoiceActor {
+export interface Artist {
   _id: string;
   name: string;
   photoUrl: string;
   birthday: string;
   nationality: string;
+  role: string;
   favorites: string[];
   biography: string;
   dubCharacters: DubCharacter[];
@@ -90,4 +91,15 @@ export interface EditCharacter {
   characterAge: number;
   characterBiography: string;
   characterSpoiler: string;
+}
+
+export interface Editora {
+  _id: string;
+  name: string;
+  sinceYear: number;
+}
+
+export interface Genres {
+  _id: string;
+  name: string;
 }

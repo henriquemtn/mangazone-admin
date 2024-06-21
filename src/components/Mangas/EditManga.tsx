@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,9 @@ import { Button } from "../ui/button";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { ModifyManga } from "@/types/types";
+import { Editora, Genres, ModifyManga } from "@/types/types";
+import DropdownTagsSelect from "../SelectMultiples";
+import SelectInput from "../Select";
 
 export default function EditManga({
   mangaId,
@@ -36,11 +38,15 @@ export default function EditManga({
     useState(M_alternativeTitles);
   const [author, setAuthor] = useState(M_author);
   const [synopsis, setSynopsis] = useState(M_synopsis);
-  const [genres, setGenres] = useState(M_genres);
+  const [genres, setGenres] = useState<string[]>(M_genres);
   const [publisherBy, setPublisherBy] = useState(M_publisherBy);
   const [score, setScore] = useState(M_score);
   const [releaseDate, setReleaseDate] = useState(M_releaseDate);
   const [imageUrlManga, setImageUrlManga] = useState(M_imageUrl);
+
+  const [editoras, setEditoras] = useState<Editora[]>([]);
+  const [genresOptions, setGenresOptions] = useState<Genres[]>([]);
+
 
   const router = useRouter();
 
@@ -107,6 +113,35 @@ export default function EditManga({
     }
   };
 
+  useEffect(() => {
+    fetchEditoras();
+    fetchGenres();
+  }, []);
+
+  const fetchEditoras = async () => {
+    try {
+      const response = await axios.get(
+        "https://api-mangazone.onrender.com/api/editoras"
+      );
+      setEditoras(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar editoras:", error);
+      // Trate o erro conforme necessário (ex.: exibir uma mensagem de erro)
+    }
+  };
+
+  const fetchGenres = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/api/genres");
+      setGenresOptions(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar gêneros:", error);
+      // Trate o erro conforme necessário (ex.: exibir uma mensagem de erro)
+    }
+  };
+
+  
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -162,28 +197,34 @@ export default function EditManga({
               id="synopsis"
               defaultValue={synopsis}
               onChange={(e) => setSynopsis(e.target.value)}
-              className="col-span-3"
+              className="col-span-3 border rounded-md p-3 text-sm"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="genero" className="text-right">
-              Gênero
+            <Label htmlFor="genres" className="text-right">
+              Gêneros
             </Label>
-            <Input
-              id="genero"
-              defaultValue={genres}
-              onChange={(e) => setGenres(e.target.value)}
+            <DropdownTagsSelect
+              blogTags={genresOptions.map((genre) => genre.name)}
+              onChange={setGenres}
+              value={genres}
+              placeholder={genres.join(", ")}
               className="col-span-3"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="publisherBy" className="text-right">
-              Publicado por
+              Editora
             </Label>
-            <Input
+            <SelectInput
               id="publisherBy"
-              defaultValue={publisherBy}
+              value={publisherBy}
               onChange={(e) => setPublisherBy(e.target.value)}
+              options={editoras.map((editora) => ({
+                value: editora.name,
+                label: editora.name,
+              }))}
+              placeholder="Selecione a Editora"
               className="col-span-3"
             />
           </div>
