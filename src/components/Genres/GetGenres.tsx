@@ -1,60 +1,76 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useMemo } from "react"
-import axios from "axios"
-import { Input } from "@/components/ui/input"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { FilePenIcon, TrashIcon } from "lucide-react"
-import { Genres } from "@/types/types"
-import toast from "react-hot-toast"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useMemo } from "react";
+import axios from "axios";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { FilePenIcon, TrashIcon } from "lucide-react";
+import { Genres } from "@/types/types";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function GetGenres() {
-  const [search, setSearch] = useState("")
-  const [genres, setGenres] = useState<Genres[]>([])
+  const [search, setSearch] = useState("");
+  const [genres, setGenres] = useState<Genres[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     const fetchGenres = async () => {
       try {
-        const response = await axios.get("https://api-mangazone.onrender.com/api/genres") 
-        setGenres(response.data)
+        const response = await axios.get(
+          "https://api-mangazone.onrender.com/api/genres"
+        );
+        setGenres(response.data);
       } catch (error) {
-        console.error("Failed to fetch Genres", error)
+        console.error("Failed to fetch Genres", error);
       }
-    }
+    };
 
-    fetchGenres()
-  }, [])
+    fetchGenres();
+  }, []);
 
   const filteredData = useMemo(() => {
     return genres.filter((item) =>
       item.name.toLowerCase().includes(search.toLowerCase())
-    )
-  }, [search, genres])
+    );
+  }, [search, genres]);
 
   const handleDelete = async (genresId: string) => {
     try {
-      const response = await axios.delete(`https://api-mangazone.onrender.com/api/genres/${genresId}`);
+      const response = await axios.delete(
+        `https://api-mangazone.onrender.com/api/genres/${genresId}`
+      );
 
       if (response.status === 200) {
         toast.success("Gênero excluído com sucesso!");
         setTimeout(() => {
           window.location.reload();
         }, 1500);
-        
       } else {
         toast.error(`Erro ao excluir genres: ${response.data.message}`);
       }
     } catch (error) {
-      toast.error("Erro ao excluir genres. Por favor, tente novamente mais tarde.");
+      toast.error(
+        "Erro ao excluir genres. Por favor, tente novamente mais tarde."
+      );
     }
-  }
+  };
 
   return (
-    <div className="border rounded-lg w-full">
-      <div className="p-4 border-b">
+    <div className="border rounded-lg w-full mt-4">
+      <div className="text-xl p-4 ">
+        Gêneros adicionadas:{" "}
+        <span className="text-xl font-medium"> {genres.length}</span>
+      </div>
+      <div className="px-4 pb-4 border-b">
         <Input
           type="search"
           placeholder="Search by name..."
@@ -67,7 +83,7 @@ export default function GetGenres() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>   
+              <TableHead>Name</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -80,7 +96,11 @@ export default function GetGenres() {
                     <FilePenIcon className="h-4 w-4" />
                     <span className="sr-only">Edit</span>
                   </Button>
-                  <Button onClick={() => handleDelete(item._id)} variant="destructive" size="icon">
+                  <Button
+                    onClick={() => handleDelete(item._id)}
+                    variant="destructive"
+                    size="icon"
+                  >
                     <TrashIcon className="h-4 w-4" />
                     <span className="sr-only">Delete</span>
                   </Button>
@@ -91,5 +111,5 @@ export default function GetGenres() {
         </Table>
       </div>
     </div>
-  )
+  );
 }

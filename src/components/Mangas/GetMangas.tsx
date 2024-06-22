@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "next/navigation";
 import { Manga } from "@/types/types";
 
 const GetMangas: React.FC = () => {
@@ -15,7 +15,9 @@ const GetMangas: React.FC = () => {
   useEffect(() => {
     const fetchMangasData = async () => {
       try {
-        const response = await fetch("https://api-mangazone.onrender.com/api/mangas");
+        const response = await fetch(
+          "https://api-mangazone.onrender.com/api/mangas"
+        );
         if (!response.ok) {
           throw new Error("Erro ao buscar os mangás");
         }
@@ -47,19 +49,24 @@ const GetMangas: React.FC = () => {
   // Calcular índices de início e fim dos mangás na página atual
   const indexOfLastManga = currentPage * mangasPerPage;
   const indexOfFirstManga = indexOfLastManga - mangasPerPage;
-  const currentMangas = filteredMangas.slice(indexOfFirstManga, indexOfLastManga);
+  const currentMangas = filteredMangas.slice(
+    indexOfFirstManga,
+    indexOfLastManga
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <h1 className="text-xl">
+        Mangás adicionados: <span className="text-xl font-medium"> {mangas.length}</span>
+      </h1>
       {/* Campo de filtro */}
       <input
         type="text"
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
         placeholder="Filtrar por título..."
-        className="border border-gray-300 p-2 mb-4 rounded-lg w-full"
+        className="border border-gray-300 p-2 my-4 rounded-lg w-full"
       />
-
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         {currentMangas.map((manga) => (
           <div
@@ -87,7 +94,9 @@ const GetMangas: React.FC = () => {
         </button>
         <button
           onClick={nextPage}
-          disabled={currentMangas.length < mangasPerPage || currentMangas.length === 0}
+          disabled={
+            currentMangas.length < mangasPerPage || currentMangas.length === 0
+          }
           className="px-4 py-2 ml-2 bg-gray-200 text-gray-600 rounded-lg disabled:bg-gray-300 disabled:text-gray-400"
         >
           Próxima

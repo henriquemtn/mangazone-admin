@@ -193,7 +193,7 @@ const TableActors: React.FC<Props> = ({ actors }) => {
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter actors..."
+          placeholder="Buscar artistas pelo Nome..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
