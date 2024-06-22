@@ -103,3 +103,8 @@ export interface Genres {
   _id: string;
   name: string;
 }
+
+export interface Authors {
+  _id: string;
+  name: string;
+}

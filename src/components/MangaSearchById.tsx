@@ -35,6 +35,7 @@ import EditManga from "./Mangas/EditManga";
 import AddCharacter from "./Characters/AddCharacter";
 import EditCharacter from "./Characters/EditCharacter";
 import { Characters } from "@/types/types";
+import { Badge } from "./ui/badge";
 
 interface Volume {
   _id: string;
@@ -106,7 +107,16 @@ export default function MangaSearchById({ mangaUrl }: CP) {
               <p className="text-gray-500 dark:text-gray-400 text-lg md:text-xl mb-6">
                 By {manga.author}
               </p>
-              <p>{manga.genres}</p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                {manga.genres.map((genre, index) => (
+                  <Badge
+                    key={index}
+                    className="bg-purple-200 text-purple-800 px-2 py-1 rounded-full text-sm"
+                  >
+                    {genre}
+                  </Badge>
+                ))}
+              </div>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
                 {manga.synopsis}
               </p>

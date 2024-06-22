@@ -54,11 +54,11 @@ const AddArtist: React.FC = () => {
           },
         }
       );
-  
+
       if (response.status !== 201) {
         throw new Error("Falha ao adicionar o Artista");
       }
-  
+
       toast.success("Artista adicionado com sucesso!");
       setTimeout(() => {
         router.push("/artistas");
@@ -68,10 +68,9 @@ const AddArtist: React.FC = () => {
       toast.error("Erro ao adicionar o artista. Tente novamente mais tarde.");
     }
   };
-  
 
   return (
-    <Card className="sm:col-span-2">
+    <Card className="w-full">
       <CardHeader className="pb-3">
         <CardTitle>Adicionar um Novo Artista</CardTitle>
         <CardDescription className="max-w-lg text-balance leading-relaxed">
@@ -112,8 +111,8 @@ const AddArtist: React.FC = () => {
                   ]}
                   id="role"
                   value={newArtist.role}
-                  onChange={(e) =>
-                    setNewArtist({ ...newArtist, role: e.target.value })
+                  onChange={(selectedRole) =>
+                    setNewArtist({ ...newArtist, role: selectedRole })
                   }
                   placeholder="Escolha um cargo"
                   className="col-span-3"
@@ -167,10 +166,10 @@ const AddArtist: React.FC = () => {
                   id="nationality"
                   placeholder="Escolha a nacionalidade"
                   value={newArtist.nationality}
-                  onChange={(e) =>
+                  onChange={(selectedNationality) =>
                     setNewArtist({
                       ...newArtist,
-                      nationality: e.target.value,
+                      nationality: selectedNationality,
                     })
                   }
                   className="col-span-3"

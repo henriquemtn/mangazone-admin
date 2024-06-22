@@ -16,9 +16,11 @@ import { Button } from "../ui/button";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { Editora, Genres, ModifyManga } from "@/types/types";
+import { Authors, Editora, Genres, ModifyManga } from "@/types/types";
 import DropdownTagsSelect from "../SelectMultiples";
 import SelectInput from "../Select";
+import { getAuthorIdByName } from "@/api/getAuthorIdByName";
+import { handleRemoveMangaRelationship } from "@/api/removeMangaRelationship";
 
 export default function EditManga({
   mangaId,
@@ -36,17 +38,17 @@ export default function EditManga({
   const [title, setTitle] = useState(M_title);
   const [alternativeTitles, setAlternativeTitles] =
     useState(M_alternativeTitles);
-  const [author, setAuthor] = useState(M_author);
+  const [author, setAuthor] = useState<string>(M_author);
   const [synopsis, setSynopsis] = useState(M_synopsis);
   const [genres, setGenres] = useState<string[]>(M_genres);
-  const [publisherBy, setPublisherBy] = useState(M_publisherBy);
+  const [publisherBy, setPublisherBy] = useState<string>(M_publisherBy);
   const [score, setScore] = useState(M_score);
   const [releaseDate, setReleaseDate] = useState(M_releaseDate);
   const [imageUrlManga, setImageUrlManga] = useState(M_imageUrl);
 
   const [editoras, setEditoras] = useState<Editora[]>([]);
   const [genresOptions, setGenresOptions] = useState<Genres[]>([]);
-
+  const [authors, setAuthors] = useState<Authors[]>([]);
 
   const router = useRouter();
 
@@ -64,6 +66,8 @@ export default function EditManga({
       }
 
       toast.success("Mangá removido com sucesso!");
+
+      await handleRemoveMangaRelationship(author, mangaId);
 
       setTimeout(() => {
         router.push("/mangas");
@@ -116,7 +120,20 @@ export default function EditManga({
   useEffect(() => {
     fetchEditoras();
     fetchGenres();
+    fetchAuthors();
   }, []);
+
+  const fetchAuthors = async () => {
+    try {
+      const response = await axios.get(
+        "https://api-mangazone.onrender.com/api/artists/authors"
+      );
+      setAuthors(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar Autores:", error);
+      // Trate o erro conforme necessário (ex.: exibir uma mensagem de erro)
+    }
+  };
 
   const fetchEditoras = async () => {
     try {
@@ -132,15 +149,15 @@ export default function EditManga({
 
   const fetchGenres = async () => {
     try {
-      const response = await axios.get("https://api-mangazone.onrender.com/api/genres");
+      const response = await axios.get(
+        "https://api-mangazone.onrender.com/api/genres"
+      );
       setGenresOptions(response.data);
     } catch (error) {
       console.error("Erro ao buscar gêneros:", error);
       // Trate o erro conforme necessário (ex.: exibir uma mensagem de erro)
     }
   };
-
-  
 
   return (
     <Dialog>
@@ -182,10 +199,15 @@ export default function EditManga({
             <Label htmlFor="autor" className="text-right">
               Autor
             </Label>
-            <Input
-              id="autor"
-              defaultValue={author}
-              onChange={(e) => setAuthor(e.target.value)}
+            <SelectInput
+              id="author"
+              value={author}
+              onChange={(selectedAuthor) => setAuthor(selectedAuthor)}
+              options={authors.map((author) => ({
+                value: author.name,
+                label: author.name,
+              }))}
+              placeholder="Selecione o Autor"
               className="col-span-3"
             />
           </div>
@@ -219,7 +241,7 @@ export default function EditManga({
             <SelectInput
               id="publisherBy"
               value={publisherBy}
-              onChange={(e) => setPublisherBy(e.target.value)}
+              onChange={(selectedPublisher) => setPublisherBy(selectedPublisher)}
               options={editoras.map((editora) => ({
                 value: editora.name,
                 label: editora.name,

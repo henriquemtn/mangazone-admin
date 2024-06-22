@@ -48,7 +48,7 @@ const DeleteArtist: React.FC = () => {
   };
 
   return (
-    <Card className="sm:col-span-2">
+    <Card className="w-full">
       <CardHeader className="pb-3">
         <CardTitle>Excluir Artista</CardTitle>
         <CardDescription className="max-w-lg text-balance leading-relaxed">

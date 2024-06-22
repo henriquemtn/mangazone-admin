@@ -22,17 +22,17 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { Editora, Genres, Manga } from "@/types/types";
+import { Authors, Editora, Genres, Manga } from "@/types/types";
 import axios from "axios";
 import SelectInput from "../Select";
-import SelectMultiple from "../SelectMultiples";
 import DropdownTagsSelect from "../SelectMultiples";
+import { addMangaRelationship } from "@/api/addMangaRelationship";
 
 export default function AddManga() {
   const router = useRouter();
 
   const [newManga, setNewManga] = useState<Manga>({
-    _id: "", // Seu backend geralmente gera o _id
+    _id: "",
     imageUrl: "",
     title: "",
     alternativeTitles: "",
@@ -46,10 +46,12 @@ export default function AddManga() {
 
   const [editoras, setEditoras] = useState<Editora[]>([]);
   const [genres, setGenres] = useState<Genres[]>([]);
+  const [authors, setAuthors] = useState<Authors[]>([]);
 
   useEffect(() => {
     fetchEditoras();
     fetchGenres();
+    fetchAuthors();
   }, []);
 
   const fetchEditoras = async () => {
@@ -66,12 +68,11 @@ export default function AddManga() {
 
   const handleAddManga = async () => {
     try {
-      // Verifica se os campos obrigatórios estão preenchidos
       if (!newManga.title || !newManga.genres) {
         throw new Error("Título e Gênero são campos obrigatórios");
       }
 
-      // Faz a requisição POST para adicionar o mangá
+      // Faz a requisição para adicionar o novo mangá
       const response = await fetch(
         "https://api-mangazone.onrender.com/api/mangas",
         {
@@ -83,18 +84,25 @@ export default function AddManga() {
         }
       );
 
-      // Verifica se a requisição foi bem-sucedida
       if (!response.ok) {
         throw new Error("Falha ao adicionar o mangá");
       }
 
-      // Exibe um toast de sucesso
+      // Obter resposta da api em Json
+      const responseData = await response.json();
+
+      // váriavel que ira armazenar o id da resposta
+      const newMangaId = responseData._id;
+      console.log("id do manga:", newMangaId);
+
+      // Adiciona a relação de mangá ao autor usando o newMangaId obtido
+      await addMangaRelationship(newManga.author, newMangaId);
+
       toast.success("Mangá adicionado com sucesso!");
 
-      // Redireciona para a página de mangás (simulado)
       setTimeout(() => {
         window.location.reload();
-      }, 1500);
+      }, 2500);
     } catch (error) {
       console.error("Erro ao adicionar o mangá:", error);
       toast.error("Erro ao adicionar o mangá. Tente novamente mais tarde.");
@@ -103,10 +111,23 @@ export default function AddManga() {
 
   const fetchGenres = async () => {
     try {
-      const response = await axios.get("https://api-mangazone.onrender.com/api/genres");
+      const response = await axios.get(
+        "https://api-mangazone.onrender.com/api/genres"
+      );
       setGenres(response.data);
     } catch (error) {
       console.error("Erro ao buscar gêneros:", error);
+    }
+  };
+
+  const fetchAuthors = async () => {
+    try {
+      const response = await axios.get(
+        "https://api-mangazone.onrender.com/api/artists/authors"
+      );
+      setAuthors(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar Autores:", error);
       // Trate o erro conforme necessário (ex.: exibir uma mensagem de erro)
     }
   };
@@ -115,9 +136,8 @@ export default function AddManga() {
     setNewManga({ ...newManga, genres: selectedGenres });
   };
 
-  
   return (
-    <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
+    <Card className="w-full" x-chunk="dashboard-05-chunk-0">
       <CardHeader className="pb-3">
         <CardTitle>Adicionar um novo Mangá</CardTitle>
         <CardDescription className="max-w-lg text-balance leading-relaxed">
@@ -171,12 +191,17 @@ export default function AddManga() {
                 <Label htmlFor="author" className="text-right">
                   Autor
                 </Label>
-                <Input
+                <SelectInput
                   id="author"
                   value={newManga.author}
-                  onChange={(e) =>
-                    setNewManga({ ...newManga, author: e.target.value })
+                  onChange={(selectedAuthor) =>
+                    setNewManga({ ...newManga, author: selectedAuthor })
                   }
+                  options={authors.map((author) => ({
+                    value: author.name,
+                    label: author.name,
+                  }))}
+                  placeholder="Selecione o Autor"
                   className="col-span-3"
                 />
               </div>
@@ -191,7 +216,7 @@ export default function AddManga() {
                     setNewManga({ ...newManga, synopsis: e.target.value })
                   }
                   className="col-span-3 border rounded-md p-3 text-sm"
-                  />
+                />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="genres" className="text-right">
@@ -212,8 +237,8 @@ export default function AddManga() {
                 <SelectInput
                   id="publisherBy"
                   value={newManga.publisherBy}
-                  onChange={(e) =>
-                    setNewManga({ ...newManga, publisherBy: e.target.value })
+                  onChange={(publisherBy) =>
+                    setNewManga({ ...newManga, publisherBy: publisherBy })
                   }
                   options={editoras.map((editora) => ({
                     value: editora.name,
